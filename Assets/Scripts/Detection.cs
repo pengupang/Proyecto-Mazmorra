@@ -4,30 +4,96 @@ using UnityEngine;
 
 public class Detection : MonoBehaviour
 {
-    //para  cambiar el tamaño del radio de deteccion
-    [SerializeField] private float radioDeteccion;
-    //para mover el bicho al detectar
-    [SerializeField]private float velocidad;
-    //para que el bicho persiga al player
-    [SerializeField] private Transform posicionJugador;
-    //layer asignado al jugador
-    [SerializeField] private LayerMask layerJugador;
-    //booleano se pondrá True cada vez que Checksphere detecte al jugador
-    private bool detectado;
+    [SerializeField] private float radioDeteccion; 
+    [SerializeField] private float velocidad;     
+    [SerializeField] private Transform posicionJugador; 
+    [SerializeField] private LayerMask layerJugador;    
+    [SerializeField] private float distanciaParaAtacar = 1.5f; 
 
+    private bool detectado;  
+    private Animator animator; 
+    private bool estaAtacando;
+
+    private float velocidadSuavizadaX;
+    private float velocidadSuavizadaY;
+    private float suavizadoFactor = 10f;  
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     void Update()
     {
-        detectado = Physics.CheckSphere(transform.position, radioDeteccion,layerJugador);
-        //Si no se ha detectado al player dentro de la esfera termina el codigo
-        if (!detectado) return;
-        // si lo detecta sigue leyendo lo de arriba
-        transform.LookAt(posicionJugador);//para que mire hacia el jugador
+        detectado = Physics.CheckSphere(transform.position, radioDeteccion, layerJugador);
 
-        var PositionPlayer = posicionJugador.position;
-        var VectorPosicionPlayer = new Vector3 (posicionJugador.position.x,posicionJugador.position.y,posicionJugador.position.z);
-        transform.position =Vector3.MoveTowards(transform.position,VectorPosicionPlayer,velocidad*Time.deltaTime);
+        if (!detectado)
+        {
+            SmoothTransition(0, 0); 
+            return;
+        }
 
-        
+        float distancia = Vector3.Distance(transform.position, posicionJugador.position);
+
+        if (estaAtacando)
+        {
+            return;
+        }
+
+        if (distancia <= distanciaParaAtacar)
+        {
+            Atacar();
+        }
+        else
+        {
+            MoverHaciaJugador();
+        }
+    }
+
+    private void MoverHaciaJugador()
+    {
+        transform.LookAt(posicionJugador);
+
+        Vector3 direccion = (posicionJugador.position - transform.position).normalized;
+
+        transform.position = Vector3.MoveTowards(transform.position, posicionJugador.position, velocidad * Time.deltaTime);
+
+        SmoothTransition(direccion.x, direccion.z);
+    }
+
+    private void SmoothTransition(float targetX, float targetY)
+    {
+        velocidadSuavizadaX = Mathf.Lerp(velocidadSuavizadaX, targetX, Time.deltaTime * suavizadoFactor);
+        velocidadSuavizadaY = Mathf.Lerp(velocidadSuavizadaY, targetY, Time.deltaTime * suavizadoFactor);
+
+        animator.SetFloat("Xeje", velocidadSuavizadaX);
+        animator.SetFloat("Yeje", velocidadSuavizadaY);
+    }
+
+    private void Atacar()
+    {
+        animator.SetTrigger("attack");
+
+        SmoothTransition(0, 0);
+
+        estaAtacando = true;
+
+        StartCoroutine(EsperarAtaque());
+    }
+
+    private IEnumerator EsperarAtaque()
+    {
+        yield return new WaitForSeconds(1.5f); 
+
+        estaAtacando = false;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, radioDeteccion);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, distanciaParaAtacar);
     }
 }
