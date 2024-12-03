@@ -51,5 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Proyecto Mazmorra.sln"
+    "dotnet.defaultSolution": "Proyecto Mazmorra.sln",
+    "FSharp.suggestGitignore": false
 }
