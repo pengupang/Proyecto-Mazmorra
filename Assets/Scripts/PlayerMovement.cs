@@ -14,6 +14,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float limiteInferior = 20f; 
     [SerializeField] private float limiteSuperior = 30f; 
     [SerializeField] private float fuerzaSalto = 10f; 
+    [SerializeField] private float tiempoRecargaAtaque = 1f; // Tiempo de recarga entre ataques
+
+    private float tiempoSiguienteAtaque = 0f;
 
     private bool enSuelo; 
     AudioManager audioManager;
@@ -59,6 +62,12 @@ public class PlayerMovement : MonoBehaviour
         {
             Saltar();
         }
+
+        if (Input.GetMouseButtonDown(0) && Time.time >= tiempoSiguienteAtaque)
+        {
+            Atacar();
+            tiempoSiguienteAtaque = Time.time + tiempoRecargaAtaque; // Reinicia el contador de recarga
+        }
     }
 
 
@@ -70,6 +79,14 @@ public class PlayerMovement : MonoBehaviour
             audioManager.PlayEfectos(audioManager.salto);
         
         }
+
+    private void Atacar()
+    {
+        animator.SetTrigger("atacar");
+        
+
+        
+    }
 
 
     private void OnCollisionStay(Collision collision)

@@ -8,6 +8,8 @@ TagManager:
   - moneda
   - Audio
   - Vida
+  - Enemigo
+  - armaImpacto
   layers:
   - Default
   - TransparentFX
