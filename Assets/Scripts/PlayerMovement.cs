@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float fuerzaSalto = 10f; 
 
     private bool enSuelo; 
+    AudioManager audioManager;
+
 
     void Start()
     {
@@ -25,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
         rb.constraints = RigidbodyConstraints.FreezeRotation;
         cameraTransform = Camera.main.transform;
         Cursor.lockState = CursorLockMode.Locked;
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     void Update()
@@ -64,6 +67,7 @@ public class PlayerMovement : MonoBehaviour
 
             rb.AddForce(Vector3.up * fuerzaSalto, ForceMode.Impulse);
             animator.SetTrigger("saltar");
+            audioManager.PlayEfectos(audioManager.salto);
         
         }
 
@@ -73,6 +77,15 @@ public class PlayerMovement : MonoBehaviour
             if (collision.gameObject.CompareTag("suelos"))
                 {
                     enSuelo = true;
+                    
+                }
+        }
+    private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.CompareTag("suelos"))
+                {
+                    enSuelo = true;
+                    audioManager.PlayEfectos(audioManager.aterrizar);
                 }
         }
 

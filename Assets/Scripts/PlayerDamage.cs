@@ -33,6 +33,9 @@ public class PlayerDamage : MonoBehaviour
     {   
         Debug.Log("Daño recibido: " + _damage);
         VidaActual = Mathf.Clamp(VidaActual - _damage, 0, vidaInicial);
+        audioManager.PlayEfectos(audioManager.golpePlayer);
+
+        
 
       //  if (VidaActual > 0)
        // {
@@ -89,6 +92,8 @@ public class PlayerDamage : MonoBehaviour
     public void masVida(float valor)
 {
     VidaActual = Mathf.Clamp(VidaActual + valor, 0, vidaInicial);
+    audioManager.PlayEfectos(audioManager.vida);
+
     Debug.Log($"Vida aumentada: {valor}, Vida actual: {VidaActual}");
 }
 

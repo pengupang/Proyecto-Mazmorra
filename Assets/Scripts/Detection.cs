@@ -17,10 +17,12 @@ public class Detection : MonoBehaviour
     private float velocidadSuavizadaX;
     private float velocidadSuavizadaY;
     private float suavizadoFactor = 10f;  
+    private AudioManager audioManager;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        audioManager.PlayEfectos(audioManager.coleccionable);
     }
 
     void Update()
@@ -54,6 +56,7 @@ public class Detection : MonoBehaviour
     {
         transform.LookAt(posicionJugador);
 
+
         Vector3 direccion = (posicionJugador.position - transform.position).normalized;
 
         transform.position = Vector3.MoveTowards(transform.position, posicionJugador.position, velocidad * Time.deltaTime);
@@ -73,6 +76,7 @@ public class Detection : MonoBehaviour
     private void Atacar()
     {
         animator.SetTrigger("attack");
+
 
         SmoothTransition(0, 0);
 
