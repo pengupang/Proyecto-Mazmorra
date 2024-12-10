@@ -23,4 +23,8 @@ public class HUDManager : MonoBehaviour
         hudText.text = $"{contador}";
     }
 }
+  public int ObtenerPuntuacion()
+    {
+        return contador; 
+    }
 }

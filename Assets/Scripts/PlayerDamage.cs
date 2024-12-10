@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayerDamage : MonoBehaviour
 {
+    
     [SerializeField] private float vidaInicial;
     public float VidaActual { get; private set; }
     [SerializeField] private Rigidbody fisicas;  // Rigidbody 3D
@@ -15,6 +16,8 @@ public class PlayerDamage : MonoBehaviour
     private Transform respawnPointActual;
     public float fuerzaRebote = 10f;
     private AudioManager audioManager;
+     [SerializeField] private HUDManager hudManager; 
+    [SerializeField] private gameoverScreen gameoverScreen;
 
     private void Awake()
     {
@@ -25,6 +28,8 @@ public class PlayerDamage : MonoBehaviour
 
         if (respawnPoints.Length > 0)
             respawnPointActual = respawnPoints[0];
+        
+       
     }
 
     
@@ -35,7 +40,9 @@ public class PlayerDamage : MonoBehaviour
         VidaActual = Mathf.Clamp(VidaActual - _damage, 0, vidaInicial);
         audioManager.PlayEfectos(audioManager.golpePlayer);
 
-        
+        if (VidaActual<=0){
+            GameOver();
+        }
 
       //  if (VidaActual > 0)
        // {
@@ -77,10 +84,6 @@ public class PlayerDamage : MonoBehaviour
     //    }
     //}
 
-   // public void ReiniciarScene()
-  //  {
-   //     SceneManager.LoadScene("SampleScene");
-   // }
 //
    // private void ReiniciarPosicion()
     //{
@@ -97,6 +100,19 @@ public class PlayerDamage : MonoBehaviour
     Debug.Log($"Vida aumentada: {valor}, Vida actual: {VidaActual}");
 }
 
+ private void GameOver()
+    {
+        fisicas.isKinematic = true; // Desactiva la física del jugador
+        
+
+        if (gameoverScreen != null && hudManager != null)
+        {
+            int score = hudManager.ObtenerPuntuacion(); // Obtén la puntuación actual del HUDManager
+            gameoverScreen.Setup(score); // Configura la pantalla de Game Over
+        }
+
+        Debug.Log("Game Over");
+    }
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
@@ -105,4 +121,6 @@ public class PlayerDamage : MonoBehaviour
             Daño(10);
         }
     }
+
+    
 }
