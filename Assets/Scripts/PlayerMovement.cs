@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
 
 
     [SerializeField] private float velocidad;
+    [SerializeField] private float velocidadCorrer = 10f;
     [SerializeField] private float sensibilidad = 100f;
     [SerializeField] private float limiteInferior = 20f; 
     [SerializeField] private float limiteSuperior = 30f; 
@@ -34,24 +35,31 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void Update()
-    {
+    {   
+        bool estaCorriendo = Input.GetKey(KeyCode.LeftShift); 
+        float velocidadActual = estaCorriendo ? velocidadCorrer : velocidad;
 
+        // Obtiene los ejes de movimiento (Horizontal y Vertical)
         float ejeX = Input.GetAxis("Horizontal");
         float ejeY = Input.GetAxis("Vertical");
 
-        Vector3 vectorMovimiento = new Vector3(ejeX, 0, ejeY).normalized * Time.deltaTime * velocidad;
+        // Calcula el movimiento en función de la velocidad actual (correr o caminar)
+        Vector3 vectorMovimiento = new Vector3(ejeX, 0, ejeY).normalized * Time.deltaTime * velocidadActual;
 
+        // Aplica el movimiento
         transform.Translate(vectorMovimiento, Space.Self);
         
+        // Suaviza los valores de animación
         float smoothX = Mathf.Lerp(animator.GetFloat("Xspeed"), ejeX, Time.deltaTime * 10f);  
         float smoothY = Mathf.Lerp(animator.GetFloat("Yspeed"), ejeY, Time.deltaTime * 10f);  
 
         animator.SetFloat("Xspeed", smoothX);
         animator.SetFloat("Yspeed", smoothY);
 
-
+        // Control de rotación de la cámara
         float mouseX = Input.GetAxis("Mouse X") * sensibilidad * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * sensibilidad * Time.deltaTime;
+
 
         float rotacionX = Mathf.Clamp(mouseY, limiteInferior, limiteSuperior);
         cameraTransform.localRotation = Quaternion.Euler(rotacionX, 0f, 0f);
