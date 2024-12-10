@@ -16,7 +16,6 @@ public class PlayerDamage : MonoBehaviour
     private Transform respawnPointActual;
     public float fuerzaRebote = 10f;
     private AudioManager audioManager;
-     [SerializeField] private HUDManager hudManager; 
     [SerializeField] private gameoverScreen gameoverScreen;
 
     private void Awake()
@@ -25,6 +24,7 @@ public class PlayerDamage : MonoBehaviour
         animator = GetComponent<Animator>();
         fisicas = GetComponent<Rigidbody>();
         audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+        
 
         if (respawnPoints.Length > 0)
             respawnPointActual = respawnPoints[0];
@@ -40,22 +40,37 @@ public class PlayerDamage : MonoBehaviour
         VidaActual = Mathf.Clamp(VidaActual - _damage, 0, vidaInicial);
         audioManager.PlayEfectos(audioManager.golpePlayer);
 
-        if (VidaActual<=0){
-            GameOver();
+       
+
+         if (VidaActual > 0)
+        {
+            Debug.Log("auch");
+
         }
 
-      //  if (VidaActual > 0)
-       // {
-      //      animator.SetTrigger("dañoPlayer");
-      //     
-       // }
-      //  else if (VidaActual <= 0)
-       // {
-       //     animator.SetTrigger("death");
-       //     fisicas.isKinematic = true;  // Rigidbody 3D no usa bodyType
-       //     Invoke("ReiniciarScene", 2f);
-       // }
-    }
+
+       else if (VidaActual <= 0)
+        {
+            animator.SetTrigger("muete");
+            fisicas.isKinematic = true;
+
+            // Obtén el puntaje desde el Singleton Coins
+            int score = Coins.Instance != null ? Coins.Instance.ObtenerPuntuacion() : 0;
+
+            // Configura la pantalla de Game Over
+            if (gameoverScreen != null)
+            {
+                gameoverScreen.Setup(score);
+            }
+
+            Debug.Log($"Game Over con puntaje: {score}");
+        }
+
+
+
+          
+        }
+    
 
     // Para que lance al jugador al aire el daño
     //public void Choque(Vector3 direccion)
@@ -100,19 +115,7 @@ public class PlayerDamage : MonoBehaviour
     Debug.Log($"Vida aumentada: {valor}, Vida actual: {VidaActual}");
 }
 
- private void GameOver()
-    {
-        fisicas.isKinematic = true; // Desactiva la física del jugador
-        
-
-        if (gameoverScreen != null && hudManager != null)
-        {
-            int score = hudManager.ObtenerPuntuacion(); // Obtén la puntuación actual del HUDManager
-            gameoverScreen.Setup(score); // Configura la pantalla de Game Over
-        }
-
-        Debug.Log("Game Over");
-    }
+ 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))

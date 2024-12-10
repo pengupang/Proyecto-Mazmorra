@@ -1,30 +1,36 @@
 using TMPro;
 using UnityEngine;
 
-public class HUDManager : MonoBehaviour
+public class Coins : MonoBehaviour
 {
-    [SerializeField] TMP_Text hudText; // Asigna tu TextMesh Pro desde el Inspector.
-    private int contador = 0;
-    AudioManager audioManager;
-    private void Awake(){
-        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
-    }
-    
-   private void OnTriggerEnter(Collider other)
-{
-    Debug.Log($"Colisión detectada con: {other.gameObject.name}");
+    public static Coins Instance { get; private set; }
 
-    if (other.gameObject.tag == "moneda")
+    [SerializeField] TMP_Text hudText;
+    private int contador = 0;
+
+    private void Awake()
     {
-        Debug.Log("Moneda recogida!");
-        audioManager.PlayEfectos(audioManager.coleccionable);
-        Destroy(other.gameObject);
-        contador++;
-        hudText.text = $"{contador}";
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject); // Asegura que solo hay una instancia
+        }
+        else
+        {
+            Instance = this;
+        }
     }
-}
-  public int ObtenerPuntuacion()
+
+    public void AgregarMoneda()
     {
-        return contador; 
+        contador++;
+        if (hudText != null)
+        {
+            hudText.text = $"{contador}";
+        }
+    }
+
+    public int ObtenerPuntuacion()
+    {
+        return contador;
     }
 }
