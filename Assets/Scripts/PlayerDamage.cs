@@ -17,6 +17,7 @@ public class PlayerDamage : MonoBehaviour
     public float fuerzaRebote = 10f;
     private AudioManager audioManager;
     [SerializeField] private gameoverScreen gameoverScreen;
+    [SerializeField] private GameObject hudCanvas;
 
     private void Awake()
     {
@@ -58,10 +59,13 @@ public class PlayerDamage : MonoBehaviour
             int score = Coins.Instance != null ? Coins.Instance.ObtenerPuntuacion() : 0;
 
             // Configura la pantalla de Game Over
-            if (gameoverScreen != null)
-            {
-                gameoverScreen.Setup(score);
-            }
+            gameoverScreen.Setup(score);
+            
+            hudCanvas.SetActive(false);
+            Cursor.lockState = CursorLockMode.None; // Desbloquea el cursor
+            Cursor.visible = true;
+
+            
 
             Debug.Log($"Game Over con puntaje: {score}");
         }
