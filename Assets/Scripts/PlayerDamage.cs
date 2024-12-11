@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class PlayerDamage : MonoBehaviour
 {
-    
-    
     [SerializeField] private Rigidbody fisicas;  // Rigidbody 3D
     [SerializeField] private float vidaMaxima = 100f;
     
@@ -24,71 +22,60 @@ public class PlayerDamage : MonoBehaviour
 
     private void Awake()
     {
-        
         vidaActual = vidaMaxima;
-        
         animator = GetComponent<Animator>();
         fisicas = GetComponent<Rigidbody>();
         audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
-        
 
         if (respawnPoints.Length > 0)
             respawnPointActual = respawnPoints[0];
-        
-       
     }
 
-    
-
     public void Daño(float dano)
-    {   
+    {
         vidaActual -= dano;
-        vidaActual = Mathf.Clamp(vidaActual - dano, 0, vidaMaxima);
+        vidaActual = Mathf.Clamp(vidaActual, 0, vidaMaxima);
         audioManager.PlayEfectos(audioManager.golpePlayer);
 
-       
-
-         if (vidaActual > 0)
+        if (vidaActual > 0)
         {
             Debug.Log("auch");
-
         }
-
-
-       else if (vidaActual <= 0)
+        else if (vidaActual <= 0 && !estaMuerto)  // Aseguramos que solo se ejecute una vez
         {
-            animator.SetTrigger("muete");
-            fisicas.isKinematic = true;
+            estaMuerto = true;  // Evitar que se ejecute varias veces
+            Muerte();  // Llamada al método Muerte() para detener el movimiento y deshabilitar colisiones
 
             // Obtén el puntaje desde el Singleton Coins
             int score = Coins.Instance != null ? Coins.Instance.ObtenerPuntuacion() : 0;
 
-            // Configura la pantalla de Game Over
-            gameoverScreen.Setup(score);
-            
-            hudCanvas.SetActive(false);
-            Cursor.lockState = CursorLockMode.None; // Desbloquea el cursor
-            Cursor.visible = true;
-
-            
+            // Llama a la corrutina para mostrar Game Over después de un tiempo
+            StartCoroutine(EsperarYMostrarGameOver(score));
 
             Debug.Log($"Game Over con puntaje: {score}");
         }
+    }
 
+    private IEnumerator EsperarYMostrarGameOver(int score)
+    {
+        // Espera el tiempo de duración de la animación de muerte (ajusta el tiempo según tu animación)
+        yield return new WaitForSeconds(2f); // Ajusta el tiempo según la duración de tu animación de muerte (2 segundos en este ejemplo)
 
+        // Esconde el HUD y desbloquea el cursor
+        hudCanvas.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
-          
-        }
-    
+        // Muestra la pantalla de Game Over
+        gameoverScreen.Setup(score);
+    }
 
     private void Muerte()
     {
-        estaMuerto = true; 
-        animator.SetTrigger("muete");
-
-       
+        // Detener movimiento
         DetenerMovimiento();
 
+        // Desactivar colisiones y físicas
         if (GetComponent<Collider>() != null)
         {
             GetComponent<Collider>().enabled = false;
@@ -100,14 +87,14 @@ public class PlayerDamage : MonoBehaviour
             rb.isKinematic = true;      
         }
 
-        
-        this.enabled = false;
-        
+        // Ejecuta la animación de muerte
+        animator.SetTrigger("muete");
+
+        this.enabled = false;  // Deshabilitar este script
     }
 
     private void DetenerMovimiento()
     {
-        
         animator.SetFloat("Xspeed", 0);
         animator.SetFloat("Yspeed", 0);
     }
@@ -120,7 +107,6 @@ public class PlayerDamage : MonoBehaviour
         Debug.Log($"Vida aumentada: {valor}, Vida actual: {VidaActual}");
     }
 
- 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
@@ -129,6 +115,4 @@ public class PlayerDamage : MonoBehaviour
             Daño(10);
         }
     }
-
-    
 }
