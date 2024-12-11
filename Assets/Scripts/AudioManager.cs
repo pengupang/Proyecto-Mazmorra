@@ -29,6 +29,7 @@ public class AudioManager : MonoBehaviour
    public AudioClip EnemigoPasos;
    public AudioClip EnemigoMuerte;
    public AudioClip EnemigoDaño;
+   public AudioClip EnemigoGolpe;
 
 
    

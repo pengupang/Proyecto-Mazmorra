@@ -20,12 +20,16 @@ public class Enemigo : MonoBehaviour
     private Animator animator;
     private Collider collider;
 
+    private AudioManager audioManager;
+
     private PlayerDamage takeDamage; 
 
     void Start()
     {
         animator = GetComponent<Animator>();
         collider = GetComponent<Collider>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+
 
         if (posicionJugador != null)
         {
@@ -89,6 +93,7 @@ public class Enemigo : MonoBehaviour
     {
         animator.SetTrigger("attack");
         estaAtacando = true;
+        audioManager.PlayEfectos(audioManager.EnemigoGolpe);
 
         StartCoroutine(EsperarAtaque());
     }
@@ -120,6 +125,7 @@ public class Enemigo : MonoBehaviour
             if (animator != null)
             {
                 animator.Play("danoEnemigo");
+                audioManager.PlayEfectos(audioManager.EnemigoDaño);
             }
 
             if (vida <= 0)
@@ -133,6 +139,7 @@ public class Enemigo : MonoBehaviour
     {
         estaMuerto = true; 
         animator.SetTrigger("Muerte");
+        audioManager.PlayEfectos(audioManager.EnemigoMuerte);
 
        
         DetenerMovimiento();
