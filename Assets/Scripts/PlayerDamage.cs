@@ -6,11 +6,14 @@ using UnityEngine.SceneManagement;
 public class PlayerDamage : MonoBehaviour
 {
     
-    [SerializeField] private float vidaInicial;
-    public float VidaActual { get; private set; }
+    
     [SerializeField] private Rigidbody fisicas;  // Rigidbody 3D
-
+    [SerializeField] private float vidaMaxima = 100f;
+    
+    private float vidaActual;
     private Animator animator;
+    private bool estaMuerto = false;
+    public float VidaActual => vidaActual;
 
     [SerializeField] private Transform[] respawnPoints;
     private Transform respawnPointActual;
@@ -21,7 +24,9 @@ public class PlayerDamage : MonoBehaviour
 
     private void Awake()
     {
-        VidaActual = vidaInicial;
+        
+        vidaActual = vidaMaxima;
+        
         animator = GetComponent<Animator>();
         fisicas = GetComponent<Rigidbody>();
         audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
@@ -35,22 +40,22 @@ public class PlayerDamage : MonoBehaviour
 
     
 
-    public void Daño(float _damage)
+    public void Daño(float dano)
     {   
-        Debug.Log("Daño recibido: " + _damage);
-        VidaActual = Mathf.Clamp(VidaActual - _damage, 0, vidaInicial);
+        vidaActual -= dano;
+        vidaActual = Mathf.Clamp(vidaActual - dano, 0, vidaMaxima);
         audioManager.PlayEfectos(audioManager.golpePlayer);
 
        
 
-         if (VidaActual > 0)
+         if (vidaActual > 0)
         {
             Debug.Log("auch");
 
         }
 
 
-       else if (VidaActual <= 0)
+       else if (vidaActual <= 0)
         {
             animator.SetTrigger("muete");
             fisicas.isKinematic = true;
@@ -76,48 +81,44 @@ public class PlayerDamage : MonoBehaviour
         }
     
 
-    // Para que lance al jugador al aire el daño
-    //public void Choque(Vector3 direccion)
-    //{
-    //    Vector3 rebote = (transform.position - direccion).normalized; // Cambié a Vector3
-    //    fisicas.AddForce(rebote * fuerzaRebote, ForceMode.Impulse);  // ForceMode.Impulse en 3D
-    //}
+    private void Muerte()
+    {
+        estaMuerto = true; 
+        animator.SetTrigger("muete");
 
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    // Se necesitan poner los respawn tanto en mapa como en la lista
-    //    if (other.CompareTag("Respawn"))
-    //    {
-    //        for (int i = 0; i < respawnPoints.Length; i++)
-   //         {
-    //            {
-    //                respawnPointActual = respawnPoints[i];
-    //                break;
-    //            }
-   //         }
-    //    }
-    //    // Funciona con poner el gameobject con el tag "Caida"
-    //    else if (other.CompareTag("Caida"))
-    //    {
-    //        Invoke("ReiniciarPosicion", 0.1f);  // Se supone que demora 0.1s en activarse
-    //    }
-    //}
+       
+        DetenerMovimiento();
 
-//
-   // private void ReiniciarPosicion()
-    //{
-   //    transform.position = respawnPointActual.position;
-   //     VidaActual = vidaInicial;
-  //      fisicas.isKinematic = false;  // Habilita la física para el jugador
-   // }
+        if (GetComponent<Collider>() != null)
+        {
+            GetComponent<Collider>().enabled = false;
+        }
+
+        if (TryGetComponent<Rigidbody>(out Rigidbody rb))
+        {
+            rb.velocity = Vector3.zero; 
+            rb.isKinematic = true;      
+        }
+
+        
+        this.enabled = false;
+        
+    }
+
+    private void DetenerMovimiento()
+    {
+        
+        animator.SetFloat("Xspeed", 0);
+        animator.SetFloat("Yspeed", 0);
+    }
 
     public void masVida(float valor)
-{
-    VidaActual = Mathf.Clamp(VidaActual + valor, 0, vidaInicial);
-    audioManager.PlayEfectos(audioManager.vida);
+    {
+        vidaActual = Mathf.Clamp(vidaActual + valor, 0, vidaMaxima);
+        audioManager.PlayEfectos(audioManager.vida);
 
-    Debug.Log($"Vida aumentada: {valor}, Vida actual: {VidaActual}");
-}
+        Debug.Log($"Vida aumentada: {valor}, Vida actual: {VidaActual}");
+    }
 
  
     private void Update()

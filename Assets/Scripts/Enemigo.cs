@@ -20,10 +20,17 @@ public class Enemigo : MonoBehaviour
     private Animator animator;
     private Collider collider;
 
+    private PlayerDamage takeDamage; 
+
     void Start()
     {
         animator = GetComponent<Animator>();
         collider = GetComponent<Collider>();
+
+        if (posicionJugador != null)
+        {
+            takeDamage = posicionJugador.GetComponent<PlayerDamage>();
+        }
     }
 
     void Update()
@@ -88,7 +95,17 @@ public class Enemigo : MonoBehaviour
 
     private IEnumerator EsperarAtaque()
     {
-        yield return new WaitForSeconds(1.5f); // Tiempo para terminar la animación de ataque
+         yield return new WaitForSeconds(1.5f); // Tiempo para terminar la animación de ataque
+
+        if (takeDamage != null)
+        {
+            float distancia = Vector3.Distance(transform.position, posicionJugador.position);
+            if (distancia <= distanciaParaAtacar)
+            {
+                takeDamage.Daño(danoArma);
+            }
+        }
+
         estaAtacando = false;
     }
 
@@ -114,10 +131,10 @@ public class Enemigo : MonoBehaviour
 
     private void Muerte()
     {
-        estaMuerto = true; // Marcar como muerto
+        estaMuerto = true; 
         animator.SetTrigger("Muerte");
 
-        // Detener movimiento y colisiones
+       
         DetenerMovimiento();
 
         if (collider != null)
@@ -131,7 +148,7 @@ public class Enemigo : MonoBehaviour
             rb.isKinematic = true;      // Desactivar física
         }
 
-        // Opcional: Desactivar este script para evitar futuras interacciones
+        
         this.enabled = false;
     }
 
