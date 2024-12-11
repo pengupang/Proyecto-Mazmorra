@@ -5,18 +5,20 @@ public class Coins : MonoBehaviour
 {
     public static Coins Instance { get; private set; }
 
-    [SerializeField] TMP_Text hudText;
-    private int contador = 0;
+    [SerializeField] private TMP_Text hudText; // Texto que muestra las monedas recogidas
+    private int contador = 0; // Contador de monedas global
 
     private void Awake()
     {
+        // Configuración del Singleton para evitar duplicados
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject); // Asegura que solo hay una instancia
+            Destroy(gameObject);
         }
         else
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // Mantén este objeto al cambiar de escena
         }
     }
 
@@ -25,7 +27,12 @@ public class Coins : MonoBehaviour
         contador++;
         if (hudText != null)
         {
-            hudText.text = $"{contador}";
+            hudText.text = $"{contador}"; // Actualiza el HUD con el contador
+            Debug.Log($"Moneda recogida. Total: {contador}");
+        }
+        else
+        {
+            Debug.LogWarning("HUD no asignado en Coins.");
         }
     }
 
