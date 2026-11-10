@@ -51,6 +51,5 @@ Juego 3D de acción en tercera persona desarrollado en **Unity**. El jugador rec
 
 ## Autora
 
-**[Tu nombre]** — [GitHub](https://github.com/pengupang) · [LinkedIn]
-
-<!-- Si fue un trabajo en equipo, agrega a tus compañeros y qué hiciste tú -->
+**Maciel Martinez** — GitHub (https://github.com/pengupang) 
+**Christofer Rivera** - GitHub (https://github.com/srdango1)
